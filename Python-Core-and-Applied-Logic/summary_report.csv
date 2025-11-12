@@ -1,0 +1,7 @@
+category,name,total_minutes,total_hours,task_count
+User,maria,125.0,2.08,3
+User,aisha,100.0,1.67,3
+User,john,75.0,1.25,2
+Task Type,analysis,140.0,2.33,3
+Task Type,data_cleanup,115.0,1.92,3
+Task Type,reporting,45.0,0.75,2
