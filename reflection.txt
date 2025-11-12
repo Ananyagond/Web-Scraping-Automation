@@ -1,0 +1,55 @@
+# Project Reflection
+
+## What was the hardest part and why?
+
+The hardest part was implementing robust error handling across the entire scraping pipeline. Web scraping is inherently unpredictable - websites have different structures, some block automated requests, networks can timeout, and APIs can fail. I had to account for multiple failure points: HTTP request failures (403, 404, 500 errors), malformed HTML that BeautifulSoup couldn't parse, missing meta tags, and Claude API rate limits or errors.
+
+The challenge was designing a system that gracefully handles these failures without stopping execution, while still providing meaningful feedback. I implemented try-catch blocks at multiple levels, added status tracking for each URL, and ensured the script continues processing even when individual URLs fail. Balancing between retrying failed requests and respecting rate limits was particularly tricky.
+
+Additionally, extracting meaningful content from diverse website structures was challenging. Different sites organize content differently - some use semantic HTML, others don't. I had to create a fallback hierarchy (meta description → first paragraph → cleaned body text) to ensure we always extract something useful for the AI summary.
+
+## If your script fails, where would you debug first?
+
+I would debug in this priority order:
+
+1. **API Key Configuration** - Check if the `.env` file exists and contains a valid Anthropic API key. This is the most common issue and easiest to fix.
+
+2. **Network Connectivity** - Test if the script can reach external URLs by trying a simple request to a reliable site (like google.com). Check for firewall issues or proxy settings.
+
+3. **Input CSV Format** - Verify `urls.csv` exists, is properly formatted with a header row, and contains valid URLs.
+
+4. **Console Output/Logs** - Review printed status messages to identify which URL or stage is failing. Add verbose logging if needed.
+
+5. **Individual Components** - Test each component separately: first just the HTTP request, then HTML parsing, then API calls with sample data.
+
+6. **Dependencies** - Verify all required packages are installed with correct versions using `pip list`.
+
+This systematic approach helps isolate whether the issue is configuration, network, data, or code-related.
+
+## Which part could be replaced with n8n or LangChain?
+
+**n8n Replacement:**
+The entire workflow could be implemented in n8n as a visual automation:
+- HTTP Request node to fetch web pages
+- HTML Extract node to parse content
+- Anthropic node for AI summaries
+- Google Sheets/CSV node for data storage
+- Schedule trigger for automated runs
+
+n8n would be ideal for this project because it's a no-code/low-code solution that handles the entire pipeline visually. The trigger → scrape → summarize → store workflow maps perfectly to n8n's node-based approach. You'd gain a UI for monitoring, retry logic, and easier scheduling without writing code.
+
+**LangChain Replacement:**
+LangChain could replace the AI summary generation logic:
+- Use `WebBaseLoader` or `AsyncHtmlLoader` for scraping
+- `RecursiveCharacterTextSplitter` for content chunking
+- `PromptTemplate` for structured summary prompts
+- LangChain's Claude integration for API calls
+- Chain components together with LCEL (LangChain Expression Language)
+
+LangChain would be beneficial if we wanted to:
+- Add RAG (Retrieval Augmented Generation) for context
+- Implement multi-step reasoning chains
+- Add memory for conversational summarization
+- Scale to document processing pipelines
+
+For this specific project, n8n would provide the most value by eliminating code entirely, while LangChain would be better if we were building more complex AI workflows with document processing, embeddings, or multi-agent systems.
